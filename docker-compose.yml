@@ -1,0 +1,73 @@
+version: '3.7'
+
+networks:
+  testingmint: 
+services:
+  kvstore-app0:
+    networks:
+      - testingmint
+    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    command: "abci-cli kvstore"
+  kvstore-app1:
+    networks:
+      - testingmint
+    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    command: "abci-cli kvstore"
+  kvstore-app2:
+    networks:
+      - testingmint
+    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    command: "abci-cli kvstore"
+  kvstore-app3:
+    networks:
+      - testingmint
+    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    command: "abci-cli kvstore"
+  validator-0:
+    networks:
+      - testingmint
+    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    ports:
+      - 26656:26656    # Tendermint peer-to-peer (P2P) port
+      - 26657:26657    # Tendermint RPC port
+      - 26660:26660    # Prometheus metrics port
+    command: tendermint start --proxy_app=tcp://kvstore-app0:26658
+    volumes:
+      - ./network-config/validator-0/config:/root/.tendermint/config
+      - ./network-config/validator-0/data:/root/.tendermint/data
+  validator-1:
+    networks:
+      - testingmint
+    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    ports:
+      - 26656:26756    # Tendermint peer-to-peer (P2P) port
+      - 26657:26757    # Tendermint RPC port
+      - 26660:26760    # Prometheus metrics port
+    command: tendermint start --proxy_app=tcp://kvstore-app1:26658 --home=/
+    volumes:
+      - ./network-config/validator-1/config:/root/.tendermint/config
+      - ./network-config/validator-1/data:/root/.tendermint/data     
+  validator-2:
+    networks:
+      - testingmint
+    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    ports:
+      - 26656:26856    # Tendermint peer-to-peer (P2P) port
+      - 26657:26857    # Tendermint RPC port
+      - 26660:26860    # Prometheus metrics port
+    command: tendermint start --proxy_app=tcp://kvstore-app2:26658 --home=/
+    volumes:
+      - ./network-config/validator-2/config:/root/.tendermint/config
+      - ./network-config/validator-2/data:/root/.tendermint/data
+  validator-3:
+    networks:
+      - testingmint
+    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    ports:
+      - 26656:26956    # Tendermint peer-to-peer (P2P) port
+      - 26657:26957    # Tendermint RPC port
+      - 26660:26960    # Prometheus metrics port
+    command: tendermint start --proxy_app=tcp://kvstore-app3:26658 --home=/
+    volumes:
+      - ./network-config/validator-3/config:/root/.tendermint/config
+      - ./network-config/validator-3/data:/root/.tendermint/data
