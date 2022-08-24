@@ -105,4 +105,15 @@ do
   SEEDS_STR="${SEEDS_STR}$(cat "${NODE_HOME}/node_id.txt")@${NODE_NAME}:${NODE_P2P_PORT}"
 done
 
+# Distribute seeds
+# distribute seeds
+for ((i=0;i<VALIDATORS_COUNT;i++))
+do 
+    NODE_NAME="validator-$i"
+    NODE_HOME="${NETWORK_CONFIG_DIR}/$NODE_NAME"
+    CONFIG_TOML="${NODE_HOME}/config/config.toml"
+    sed -i $SED_EXT 's/seeds = ""/seeds = "'"$SEEDS_STR"'"/g' $CONFIG_TOML
+    sed -i $SED_EXT 's/persistent_peers = ""/persistent_peers = "'"$SEEDS_STR"'"/g' $CONFIG_TOML
+done
+
 echo "${SEEDS_STR}" > "${NETWORK_CONFIG_DIR}/seeds.txt"

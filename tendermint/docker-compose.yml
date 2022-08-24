@@ -1,7 +1,12 @@
 version: '3.7'
 
+networks:
+  localnet:
+
 services:
   validator-0:
+    networks:
+      - localnet
     image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
     ports:
       - 26656:26656    # Tendermint peer-to-peer (P2P) port
@@ -13,6 +18,8 @@ services:
       - ./network-config/validator-0/data:/root/.tendermint/data
       - ./network-config/seeds.txt:/root/.tendermint/config/seeds.txt 
   validator-1:
+    networks:
+      - localnet  
     image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
     ports:
       - 26756:26656    # Tendermint peer-to-peer (P2P) port
@@ -24,6 +31,8 @@ services:
       - ./network-config/validator-1/data:/root/.tendermint/data 
       - ./network-config/seeds.txt:/root/.tendermint/config/seeds.txt     
   validator-2:
+    networks:
+      - localnet  
     image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
     ports:
       - 26856:26656    # Tendermint peer-to-peer (P2P) port
@@ -35,6 +44,8 @@ services:
       - ./network-config/validator-2/data:/root/.tendermint/data
       - ./network-config/seeds.txt:/root/.tendermint/config/seeds.txt 
   validator-3:
+    networks:
+      - localnet  
     image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
     ports:
       - 26956:26656    # Tendermint peer-to-peer (P2P) port
@@ -46,11 +57,14 @@ services:
       - ./network-config/validator-3/data:/root/.tendermint/data
       - ./network-config/seeds.txt:/root/.tendermint/config/seeds.txt      
   seed-0:
+    networks:
+      - localnet  
     image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
     ports:
       - 27056:26656
       - 27057:26657
       - 27060:26660
+    command: tendermint start
     volumes:
       - ./network-config/seed-0/config:/root/.tendermint/config
       - ./network-config/seed-0/data:/root/.tendermint/data
