@@ -1,73 +1,57 @@
 version: '3.7'
 
-networks:
-  testingmint: 
 services:
-  kvstore-app0:
-    networks:
-      - testingmint
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
-    command: "abci-cli kvstore"
-  kvstore-app1:
-    networks:
-      - testingmint
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
-    command: "abci-cli kvstore"
-  kvstore-app2:
-    networks:
-      - testingmint
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
-    command: "abci-cli kvstore"
-  kvstore-app3:
-    networks:
-      - testingmint
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
-    command: "abci-cli kvstore"
   validator-0:
-    networks:
-      - testingmint
     image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
     ports:
       - 26656:26656    # Tendermint peer-to-peer (P2P) port
       - 26657:26657    # Tendermint RPC port
       - 26660:26660    # Prometheus metrics port
-    command: tendermint start --proxy_app=tcp://kvstore-app0:26658
+    command: tendermint start --proxy_app kvstore
     volumes:
       - ./network-config/validator-0/config:/root/.tendermint/config
       - ./network-config/validator-0/data:/root/.tendermint/data
+      - ./network-config/seeds.txt:/root/.tendermint/config/seeds.txt 
   validator-1:
-    networks:
-      - testingmint
     image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
     ports:
-      - 26656:26756    # Tendermint peer-to-peer (P2P) port
-      - 26657:26757    # Tendermint RPC port
-      - 26660:26760    # Prometheus metrics port
-    command: tendermint start --proxy_app=tcp://kvstore-app1:26658 --home=/
+      - 26756:26656    # Tendermint peer-to-peer (P2P) port
+      - 26757:26657    # Tendermint RPC port
+      - 26760:26660    # Prometheus metrics port
+    command: tendermint start --proxy_app kvstore
     volumes:
       - ./network-config/validator-1/config:/root/.tendermint/config
-      - ./network-config/validator-1/data:/root/.tendermint/data     
+      - ./network-config/validator-1/data:/root/.tendermint/data 
+      - ./network-config/seeds.txt:/root/.tendermint/config/seeds.txt     
   validator-2:
-    networks:
-      - testingmint
     image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
     ports:
-      - 26656:26856    # Tendermint peer-to-peer (P2P) port
-      - 26657:26857    # Tendermint RPC port
-      - 26660:26860    # Prometheus metrics port
-    command: tendermint start --proxy_app=tcp://kvstore-app2:26658 --home=/
+      - 26856:26656    # Tendermint peer-to-peer (P2P) port
+      - 26857:26657    # Tendermint RPC port
+      - 26860:26660    # Prometheus metrics port
+    command: tendermint start --proxy_app kvstore
     volumes:
       - ./network-config/validator-2/config:/root/.tendermint/config
       - ./network-config/validator-2/data:/root/.tendermint/data
+      - ./network-config/seeds.txt:/root/.tendermint/config/seeds.txt 
   validator-3:
-    networks:
-      - testingmint
     image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
     ports:
-      - 26656:26956    # Tendermint peer-to-peer (P2P) port
-      - 26657:26957    # Tendermint RPC port
-      - 26660:26960    # Prometheus metrics port
-    command: tendermint start --proxy_app=tcp://kvstore-app3:26658 --home=/
+      - 26956:26656    # Tendermint peer-to-peer (P2P) port
+      - 26957:26657    # Tendermint RPC port
+      - 26960:26660    # Prometheus metrics port
+    command: tendermint start --proxy_app kvstore
     volumes:
       - ./network-config/validator-3/config:/root/.tendermint/config
       - ./network-config/validator-3/data:/root/.tendermint/data
+      - ./network-config/seeds.txt:/root/.tendermint/config/seeds.txt      
+  seed-0:
+    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    ports:
+      - 27056:26656
+      - 27057:26657
+      - 27060:26660
+    volumes:
+      - ./network-config/seed-0/config:/root/.tendermint/config
+      - ./network-config/seed-0/data:/root/.tendermint/data
+      - ./network-config/seeds.txt:/root/.tendermint/config/seeds.txt

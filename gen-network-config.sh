@@ -15,12 +15,13 @@ fi
 CHAIN_ID="testTendermint"
 TXN_TYPE="commit"
 
-VALIDATORS_COUNT=1
+VALIDATORS_COUNT=4
+SEEDS_COUNT=1
 
 # global variables
 NETWORK_CONFIG_DIR="network-config"
 TMP_VALIDATOR_HOME="${NETWORK_CONFIG_DIR}/tmp"
-
+GENESIS_TMP="${NETWORK_CONFIG_DIR}/genesis.json"
 
 function init_node () {
     NODE_HOME=$1
@@ -29,6 +30,8 @@ function init_node () {
     echo "$NODE_NAME Initializing"
 
     tendermint init --home $NODE_HOME 2> /dev/null
+    tendermint show-node-id --home $NODE_HOME > "${NODE_HOME}/node_id.txt"
+    tendermint show-validator --home $NODE_HOME > "${NODE_HOME}/node_val_pubkey.txt"
 }
 
 function configure_genesis() {
@@ -38,11 +41,10 @@ function configure_genesis() {
     echo "$NODE_NAME Configuring genesis"
 
     GENESIS="${NODE_HOME}/config/genesis.json"
-    GENESIS_TMP="${NODE_HOME}/config/genesis_tmp.json"
     VALIDATORS=$(jq -c . "$TMP_VALIDATOR_HOME/validators.json" | jq .)
     # set chain id
     jq '.validators='"$VALIDATORS"' | .chain_id="'"$CHAIN_ID"'"' $GENESIS > $GENESIS_TMP
-    mv $GENESIS_TMP $GENESIS
+    cp $GENESIS_TMP $GENESIS
 }
 
 rm -rf $NETWORK_CONFIG_DIR
@@ -66,7 +68,6 @@ do
     echo $jv | jq '. += ['"$jg"']' > "$VALIDATORS"
 done
 
-
 # Configure genesis
 for ((i=0;i<VALIDATORS_COUNT;i++))
 do 
@@ -75,7 +76,29 @@ do
     configure_genesis $NODE_HOME $NODE_NAME
 done
 
+# Create seed node
+for((i=0;i<SEEDS_COUNT;i++))
+do 
+    NODE_NAME="seed-$i"
+    NODE_HOME="${NETWORK_CONFIG_DIR}/${NODE_NAME}"
+    init_node $NODE_HOME $NODE_NAME
+    cp $GENESIS_TMP "${NODE_HOME}/config/genesis.json"
+done
 
+# Generate seeds.txt
+SEEDS_STR=""
+for((i=0;i<SEEDS_COUNT;i++))
+do
+    NODE_NAME="seed-$i"
+    NODE_P2P_PORT="26656"
+    NODE_HOME="${NETWORK_CONFIG_DIR}/${NODE_NAME}"
 
+    if((i!=0))
+    then
+    SEEDS_STR="${SEEDS_STR},"
+    fi
 
+  SEEDS_STR="${SEEDS_STR}$(cat "${NODE_HOME}/node_id.txt")@${NODE_NAME}:${NODE_P2P_PORT}"
+done
 
+echo "${SEEDS_STR}" > "${NETWORK_CONFIG_DIR}/seeds.txt"
