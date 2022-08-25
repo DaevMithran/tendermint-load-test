@@ -16,12 +16,12 @@ CHAIN_ID="testTendermint"
 TXN_TYPE="commit"
 
 VALIDATORS_COUNT=4
-SEEDS_COUNT=1
 
 # global variables
 NETWORK_CONFIG_DIR="network-config"
 TMP_VALIDATOR_HOME="${NETWORK_CONFIG_DIR}/tmp"
 GENESIS_TMP="${NETWORK_CONFIG_DIR}/genesis.json"
+GENESIS_TIME="2022-08-25T06:26:52.671073265Z"
 
 function init_node () {
     NODE_HOME=$1
@@ -37,18 +37,32 @@ function init_node () {
 function configure_genesis() {
     NODE_HOME=$1
     NODE_NAME=$2
-    
+    NODE_P2P_PORT="26656"
+    VALIDATORS_STR=""
+
     echo "$NODE_NAME Configuring genesis"
 
     GENESIS="${NODE_HOME}/config/genesis.json"
     VALIDATORS=$(jq -c . "$TMP_VALIDATOR_HOME/validators.json" | jq .)
     CONFIG="${NODE_HOME}/config/config.toml"
     # set chain id
-    jq '.validators='"$VALIDATORS"' | .chain_id="'"$CHAIN_ID"'"' $GENESIS > $GENESIS_TMP
+    jq '.validators='"$VALIDATORS"' | .chain_id="'"$CHAIN_ID"'" | .genesis_time="'"$GENESIS_TIME"'"' $GENESIS > $GENESIS_TMP
     cp $GENESIS_TMP $GENESIS
     sed -i $SED_EXT 's|laddr = "tcp://127.0.0.1:26657"|laddr = "tcp://0.0.0.0:26657"|g' $CONFIG
     sed -i $SED_EXT 's|addr_book_strict = true|addr_book_strict = false|g' $CONFIG
-    # sed -i $SED_EXT 's|enable = false|enable = true|g' $CONFIG
+
+    for ((j=0;j<VALIDATORS_COUNT;j++))
+    do
+        VALIDATOR="validator-$j"
+        VALIDATOR_HOME="${NETWORK_CONFIG_DIR}/$VALIDATOR"
+        if [ $VALIDATOR != $NODE_NAME ]
+        then
+            VALIDATORS_STR="${VALIDATORS_STR}$(cat "${VALIDATOR_HOME}/node_id.txt")@${VALIDATOR}:${NODE_P2P_PORT},"
+        fi
+    done
+    VALIDATORS_STR=${VALIDATORS_STR::-1}
+
+    sed -i $SED_EXT 's|persistent_peers = ""|persistent_peers = "'"$VALIDATORS_STR"'"|g' $CONFIG
 }
 
 rm -rf $NETWORK_CONFIG_DIR
@@ -80,40 +94,4 @@ do
     configure_genesis $NODE_HOME $NODE_NAME
 done
 
-# Create seed node
-for((i=0;i<SEEDS_COUNT;i++))
-do 
-    NODE_NAME="seed-$i"
-    NODE_HOME="${NETWORK_CONFIG_DIR}/${NODE_NAME}"
-    init_node $NODE_HOME $NODE_NAME
-    cp $GENESIS_TMP "${NODE_HOME}/config/genesis.json"
-done
-
-# Generate seeds.txt
-SEEDS_STR=""
-for((i=0;i<SEEDS_COUNT;i++))
-do
-    NODE_NAME="seed-$i"
-    NODE_P2P_PORT="26656"
-    NODE_HOME="${NETWORK_CONFIG_DIR}/${NODE_NAME}"
-
-    if((i!=0))
-    then
-    SEEDS_STR="${SEEDS_STR},"
-    fi
-
-  SEEDS_STR="${SEEDS_STR}$(cat "${NODE_HOME}/node_id.txt")@${NODE_NAME}:${NODE_P2P_PORT}"
-done
-
-# Distribute seeds
-# distribute seeds
-for ((i=0;i<VALIDATORS_COUNT;i++))
-do 
-    NODE_NAME="validator-$i"
-    NODE_HOME="${NETWORK_CONFIG_DIR}/$NODE_NAME"
-    CONFIG_TOML="${NODE_HOME}/config/config.toml"
-    sed -i $SED_EXT 's/seeds = ""/seeds = "'"$SEEDS_STR"'"/g' $CONFIG_TOML
-    sed -i $SED_EXT 's/persistent_peers = ""/persistent_peers = "'"$SEEDS_STR"'"/g' $CONFIG_TOML
-done
-
-echo "${SEEDS_STR}" > "${NETWORK_CONFIG_DIR}/seeds.txt"
+echo $VALIDATORS_STR > "${NETWORK_CONFIG_DIR}/validators.txt"
