@@ -1,0 +1,95 @@
+#!/bin/bash
+
+usage() {
+
+cat <<-EOF
+    Usage: $0 [command] [options]
+    Commands:
+    up  - Creates the application container from the built images
+            When using the '--logs' option, use ctrl-c to exit logging. Use "down" or "stop" to stop the run.
+            Examples:
+            $0 start
+            $0 start --logs
+            $0 start --wait --logs
+    start - Same as up
+    stop - Stops the services.  This is a non-destructive process.  The volumes and containers
+            are not deleted so they will be reused the next time you run start.
+EOF
+exit 1
+}
+
+function start() {
+    # rate: time: size:
+    read -p "Test name: " TEST
+    read -p "Transaction rate: " RATE
+    read -p "Time limit: " TIME
+    read -p "Size: " SIZE
+    read -p "Transaciton type: " TXN_TYPE
+
+    if [ -z $RATE ]
+    then
+        RATE=1000
+    fi
+
+    if [ -z $TIME ]
+    then 
+        TIME=10
+    fi
+
+    if [ -z $SIZE ]
+    then
+        SIZE=250
+    fi
+
+    if [ -z $TXN_TYPE ]
+    then
+        TXN_TYPE="async"
+    fi
+
+    if [ -z $TEST ]
+    then
+        TEST="default"
+    fi
+    mkdir -p tests
+    mkdir -p tests/$TEST
+
+    echo "Starting coordinator with rate: $RATE time: $TIME size: $SIZE"
+
+    ./build/tm-load-test \
+    coordinator \
+    --expect-workers 2 \
+    --bind localhost:26670 \
+    -c 1 -T $TIME -r $RATE -s $SIZE \
+    --broadcast-tx-method $TXN_TYPE \
+    --endpoints ws://0.0.0.0:26657/websocket,ws://0.0.0.0:26757/websocket,ws://0.0.0.0:26857/websocket,ws://0.0.0.0:26957/websocket \
+    --endpoint-select-method any \
+    --stats-output ./tests/$TEST/"$RATE:$TIME:$SIZE".csv &
+
+    echo "Starting worker 1"
+    start_worker &
+
+    echo "Starting worker 2"
+    start_worker
+
+    wait
+}
+
+function start_worker() {
+    ./build/tm-load-test worker
+}
+
+# =================================================================================================================
+
+COMMAND=$1
+
+case "$COMMAND" in
+    start | up)
+    start
+    ;;
+    down)
+    ;;
+    *)
+    usage
+    ;;
+esac
+
