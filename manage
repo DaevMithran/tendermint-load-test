@@ -55,6 +55,9 @@ function start() {
 
     echo "Starting coordinator with rate: $RATE time: $TIME size: $SIZE"
 
+    h1=$(curl "http://0.0.0.0:26657/abci_info?" | jq .result.response.last_block_height |  tr -d '"')
+    h1=$((h1-5))
+
     ./build/tm-load-test \
     coordinator \
     --expect-workers 2 \
@@ -72,10 +75,32 @@ function start() {
     start_worker
 
     wait
+
+    h2=$(curl "http://0.0.0.0:26657/abci_info?" | jq .result.response.last_block_height | tr -d '"')
+
+    echo $h1 $h2
+
+    txns=$(calculate_throughput $h1 $h2)
+    throughput=$((txns/TIME))
+    # echo $throughput
+    echo "Final throughput: $throughput" >> "./tests/$TEST/"$RATE:$TIME:$SIZE".csv"
 }
 
 function start_worker() {
     ./build/tm-load-test worker
+}
+
+function calculate_throughput() {
+    h1=$1
+    h2=$2
+    count=0
+    for((i=h1;i<h2;i++)) {
+        data=$(curl "http://0.0.0.0:26657/block?height=$i" | jq .result.block.data.txs| tr -d '[]')
+        readarray -d, -t -s 1 txs <<< "$data"
+        n=${#txs[@]}
+        count=$((count+n))        
+    }
+    echo $count
 }
 
 # =================================================================================================================
