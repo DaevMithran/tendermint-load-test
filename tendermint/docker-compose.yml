@@ -7,7 +7,7 @@ services:
   validator-0:
     networks:
       - localnet
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 26656:26656    # Tendermint peer-to-peer (P2P) port
       - 26657:26657    # Tendermint RPC port
@@ -19,7 +19,7 @@ services:
   validator-1:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 26756:26656    # Tendermint peer-to-peer (P2P) port
       - 26757:26657    # Tendermint RPC port
@@ -31,7 +31,7 @@ services:
   validator-2:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 26856:26656    # Tendermint peer-to-peer (P2P) port
       - 26857:26657    # Tendermint RPC port
@@ -43,7 +43,7 @@ services:
   validator-3:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 26956:26656    # Tendermint peer-to-peer (P2P) port
       - 26957:26657    # Tendermint RPC port
@@ -55,7 +55,7 @@ services:
   validator-4:
     networks:
       - localnet
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27056:26656    # Tendermint peer-to-peer (P2P) port
       - 27057:26657    # Tendermint RPC port
@@ -67,7 +67,7 @@ services:
   validator-5:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27156:26656    # Tendermint peer-to-peer (P2P) port
       - 27157:26657    # Tendermint RPC port
@@ -79,7 +79,7 @@ services:
   validator-6:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27256:26656    # Tendermint peer-to-peer (P2P) port
       - 27257:26657    # Tendermint RPC port
@@ -91,7 +91,7 @@ services:
   validator-7:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27356:26656    # Tendermint peer-to-peer (P2P) port
       - 27357:26657    # Tendermint RPC port
@@ -103,7 +103,7 @@ services:
   validator-8:
     networks:
       - localnet
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27456:26656    # Tendermint peer-to-peer (P2P) port
       - 27457:26657    # Tendermint RPC port
@@ -115,7 +115,7 @@ services:
   validator-9:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27556:26656    # Tendermint peer-to-peer (P2P) port
       - 27557:26657    # Tendermint RPC port
@@ -127,7 +127,7 @@ services:
   validator-10:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27656:26656    # Tendermint peer-to-peer (P2P) port
       - 27657:26657    # Tendermint RPC port
@@ -139,7 +139,7 @@ services:
   validator-11:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27756:26656    # Tendermint peer-to-peer (P2P) port
       - 27757:26657    # Tendermint RPC port
@@ -151,7 +151,7 @@ services:
   validator-12:
     networks:
       - localnet
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27856:26656    # Tendermint peer-to-peer (P2P) port
       - 27857:26657    # Tendermint RPC port
@@ -163,7 +163,7 @@ services:
   validator-13:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 27956:26656    # Tendermint peer-to-peer (P2P) port
       - 27957:26657    # Tendermint RPC port
@@ -175,7 +175,7 @@ services:
   validator-14:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 28056:26656    # Tendermint peer-to-peer (P2P) port
       - 28057:26657    # Tendermint RPC port
@@ -187,7 +187,7 @@ services:
   validator-15:
     networks:
       - localnet  
-    image: ${TENDERMINT_IMAGE}:${TENDERMINT_VERSION}
+    image: ${TENDERMINT_LOADTEST_IMAGE}:${TENDERMINT_LOADTEST_VERSION}
     ports:
       - 28156:26656    # Tendermint peer-to-peer (P2P) port
       - 28157:26657    # Tendermint RPC port

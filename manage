@@ -19,6 +19,16 @@ exit 1
 }
 
 function build() {
+    docker build -t tendermint-load-test .
+    
+    cd tendermint
+    ./gen-network-config.sh
+    docker-compose -f ./docker-compose.yml up -d
+
+    cd ..
+}
+
+function rebuild() {
     cd tendermint
 
     docker-compose down
@@ -112,11 +122,19 @@ function calculate_throughput() {
     echo $count
 }
 
+function stop() {
+    cd tendermint
+    docker-compose -f ./docker-compose.yml down 
+    sudo rm -rf network-config
+    cd ..
+}
+
 function down() {
     cd tendermint
     docker-compose -f ./docker-compose.yml down 
     sudo rm -rf network-config
     cd ..
+    docker image rm tendermint-load-test:latest
 }
 
 # =================================================================================================================
@@ -124,11 +142,17 @@ function down() {
 COMMAND=$1
 
 case "$COMMAND" in
-    rebuild)
+    build)
     build
+    ;;
+    rebuild)
+    rebuild
     ;;
     start | up)
     start
+    ;;
+    stop)
+    stop
     ;;
     down)
     down

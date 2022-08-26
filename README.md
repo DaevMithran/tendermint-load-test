@@ -6,10 +6,12 @@ A extension of [tm-load-test](https://github.com/informalsystems/tm-load-test) t
 ### Load test
 - Clone the repository
 > `git clone https://github.com/DaevMithran/tendermint-load-test.git`
-
-- `./manage build`
-- `./manage start`
-
+- `cd tendermint-load-test`
+- Build the docker image and start the network: `./manage build`
+- Start the simulation: `./manage start`
+- To restart a new network: `./manage rebuild`
+- To stop the network:  `./manage stop`
+- To destroy the network: `./manage down`
 
 ### Customizing
 - `cd tendermint`
