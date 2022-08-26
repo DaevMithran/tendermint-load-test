@@ -1,6 +1,9 @@
 # Tendermint-load-test
 A extension of [tm-load-test](https://github.com/informalsystems/tm-load-test) to load test tendermint corresponding to number of validators
 
+## Prerequisites
+- Install [tendermint](https://docs.tendermint.com/v0.34/introduction/install.html) binary  
+
 ## Usage
 
 ### Load test
