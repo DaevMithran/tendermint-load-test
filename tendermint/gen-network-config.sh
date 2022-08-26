@@ -13,9 +13,8 @@ fi
 
 # Params 
 CHAIN_ID="testTendermint"
-TXN_TYPE="commit"
 
-VALIDATORS_COUNT=4
+VALIDATORS_COUNT=16
 
 # global variables
 NETWORK_CONFIG_DIR="network-config"
@@ -65,11 +64,11 @@ function configure_genesis() {
     sed -i $SED_EXT 's|persistent_peers = ""|persistent_peers = "'"$VALIDATORS_STR"'"|g' $CONFIG
 }
 
-rm -rf $NETWORK_CONFIG_DIR
-mkdir $NETWORK_CONFIG_DIR
+sudo rm -rf $NETWORK_CONFIG_DIR
+mkdir -m 777 $NETWORK_CONFIG_DIR
 
 rm -rf $TMP_VALIDATOR_HOME
-mkdir $TMP_VALIDATOR_HOME
+mkdir -m 777 $TMP_VALIDATOR_HOME
 jq -n '[]' > "$TMP_VALIDATOR_HOME/validators.json"
 
 # Adding genesis validators
