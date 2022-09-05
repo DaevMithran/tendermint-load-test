@@ -12,10 +12,11 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 # Params 
-CHAIN_ID="checkers"
+CHAIN_ID="simapp"
 
 VALIDATORS_COUNT=4
 SEEDS_COUNT=1
+OBSERVER_COUNT=200
 
 # global variables
 NETWORK_CONFIG_DIR="network-config"
@@ -24,18 +25,30 @@ TMP_NODE_NAME="tmp"
 TMP_NODE_HOME="${NETWORK_CONFIG_DIR}/${TMP_NODE_NAME}"
 GENESIS_TMP="${TMP_NODE_HOME}/config/genesis.json"
 
+export PATH="$PATH:../build/"
+
 function init_node () {
+    simd keys add $NODE_NAME --keyring-backend "test" --home "$NODE_HOME" &> "tmp_$NODE_NAME.txt"
+    
+    cat "tmp_$NODE_NAME.txt" | grep address | cut -d ':' -f 2 | xargs | tr -d "\n" > "keys/${NODE_NAME}_ADDRESS.txt"
+    cat "tmp_$NODE_NAME.txt" | tail -1 | tr -d "\n" > "keys/${NODE_NAME}_MNEMONIC.txt"
+    rm "tmp_$NODE_NAME.txt"
+
+    simd add-genesis-account $NODE_NAME 20000000000stake --keyring-backend "test" --home "$NODE_HOME"
+}
+
+function init_validator () {
     NODE_HOME=$1
     NODE_NAME=$2
 
     echo "$NODE_NAME Initializing"
 
-    checkersd init $NODE_NAME --home $NODE_HOME 2> /dev/null
-    checkersd tendermint show-node-id --home $NODE_HOME > "${NODE_HOME}/node_id.txt"
-    checkersd tendermint show-validator --home $NODE_HOME > "${NODE_HOME}/node_val_pubkey.txt"
+    simd init $NODE_NAME --home $NODE_HOME --chain-id $CHAIN_ID 2> /dev/null
+    simd tendermint show-node-id --home $NODE_HOME > "${NODE_HOME}/node_id.txt"
+    simd tendermint show-validator --home $NODE_HOME > "${NODE_HOME}/node_val_pubkey.txt"
 }
 
-function configure_node () {
+function configure_validator () {
     NODE_HOME=$1
     NODE_NAME=$2
     
@@ -44,20 +57,24 @@ function configure_node () {
     APP_TOML="${NODE_HOME}/config/app.toml"
     CONFIG_TOML="${NODE_HOME}/config/config.toml"
 
-    sed -i $SED_EXT 's/minimum-gas-prices = ""/minimum-gas-prices = "25stake"/g' $APP_TOML
+    # sed -i $SED_EXT 's/minimum-gas-prices = ""/minimum-gas-prices = "25stake"/g' $APP_TOML
     sed -i $SED_EXT 's/enable = false/enable = true/g' $APP_TOML
 
     sed -i $SED_EXT 's|laddr = "tcp://127.0.0.1:26657"|laddr = "tcp://0.0.0.0:26657"|g' $CONFIG_TOML
     sed -i $SED_EXT 's|addr_book_strict = true|addr_book_strict = false|g' $CONFIG_TOML  
-    sed -i $SED_EXT 's/timeout_propose = "3s"/timeout_propose = "500ms"/g' $CONFIG_TOML
-    sed -i $SED_EXT 's/timeout_prevote = "1s"/timeout_prevote = "500ms"/g' $CONFIG_TOML
-    sed -i $SED_EXT 's/timeout_precommit = "1s"/timeout_precommit = "500ms"/g' $CONFIG_TOML
-    sed -i $SED_EXT 's/timeout_commit = "5s"/timeout_commit = "500ms"/g' $CONFIG_TOML
+    sed -i $SED_EXT 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $CONFIG_TOML
+    # sed -i $SED_EXT 's/timeout_prevote = "1s"/timeout_prevote = "500ms"/g' $CONFIG_TOML
+    # sed -i $SED_EXT 's/timeout_precommit = "1s"/timeout_precommit = "500ms"/g' $CONFIG_TOML
+    sed -i $SED_EXT 's/timeout_commit = "5s"/timeout_commit = "1s"/g' $CONFIG_TOML
+    sed -i $SED_EXT 's/create_empty_blocks = true/create_empty_blocks = false/g' $CONFIG_TOML
+    sed -i $SED_EXT 's/create_empty_blocks_interval = "0s"/create_empty_blocks_interval = "60s"/g' $CONFIG_TOML
+    sed -i $SED_EXT 's/flush_throttle_timeout = "100ms"/flush_throttle_timeout = "10ms"/g' $CONFIG_TOML
 }
 
 rm -rf $NETWORK_CONFIG_DIR
-mkdir $NETWORK_CONFIG_DIR
-
+mkdir -m 777 $NETWORK_CONFIG_DIR
+rm -rf keys
+mkdir -m 777 keys
 rm -rf $TMP_NODE_NAME
 mkdir $TMP_NODE_HOME
 mkdir "$TMP_NODE_HOME/config"
@@ -69,16 +86,28 @@ do
     NODE_NAME="validator-$i"
     NODE_HOME="${NETWORK_CONFIG_DIR}/$NODE_NAME"
 
-    init_node $NODE_HOME $NODE_NAME
-    configure_node $NODE_HOME $NODE_NAME
+    init_validator $NODE_HOME $NODE_NAME
+    configure_validator $NODE_HOME $NODE_NAME
 done
 
 for((i=0;i<SEEDS_COUNT;i++))
 do 
     NODE_NAME="seed-$i"
     NODE_HOME="${NETWORK_CONFIG_DIR}/${NODE_NAME}"
-    init_node $NODE_HOME $NODE_NAME
-    configure_node $NODE_HOME $NODE_NAME
+    init_validator $NODE_HOME $NODE_NAME
+    configure_validator $NODE_HOME $NODE_NAME
+done
+
+# num_procs=2
+# num_jobs="\j"
+for((i=0;i<OBSERVER_COUNT;i++))
+do
+    # while((${num_jobs@P} >= num_procs)); do
+    #     wait -n
+    # done
+    NODE_NAME="node-$i"
+    NODE_HOME="${NETWORK_CONFIG_DIR}/validator-0"
+    init_node
 done
 
 echo "Adding genesis validators"
@@ -95,12 +124,13 @@ do
         cp $GENESIS_TMP $GENESIS
     fi
 
-    checkersd keys add $NODE_NAME --keyring-backend "test" --home "${NODE_HOME}"
-    checkersd add-genesis-account $NODE_NAME 20000000000000000stake --keyring-backend "test" --home "${NODE_HOME}"
+    simd keys add $NODE_NAME --keyring-backend "test" --home "${NODE_HOME}"
 
-    NODE_ID=$(checkersd tendermint show-node-id --home "${NODE_HOME}")
-    NODE_VAL_PUBKEY=$(checkersd tendermint show-validator --home "${NODE_HOME}")
-    checkersd gentx $NODE_NAME 1000000000000000stake --chain-id "${CHAIN_ID}" --node-id "${NODE_ID}" \
+    simd add-genesis-account $NODE_NAME 20000000000000000stake --keyring-backend "test" --home "${NODE_HOME}"
+
+    NODE_ID=$(simd tendermint show-node-id --home "${NODE_HOME}")
+    NODE_VAL_PUBKEY=$(simd tendermint show-validator --home "${NODE_HOME}")
+    simd gentx $NODE_NAME 1000000000000000stake --chain-id "${CHAIN_ID}" --node-id "${NODE_ID}" \
     --pubkey "${NODE_VAL_PUBKEY}" --keyring-backend "test"  --home "${NODE_HOME}"
 
     cp "${NODE_HOME}/config/genesis.json" $GENESIS_TMP
@@ -108,8 +138,8 @@ do
 done
 
 echo "Collecting gentxs"
-checkersd collect-gentxs --home $TMP_NODE_HOME
-checkersd validate-genesis --home $TMP_NODE_HOME
+simd collect-gentxs --home $TMP_NODE_HOME
+simd validate-genesis --home $TMP_NODE_HOME
 
 # Distribute genesis
 for ((i=0;i<VALIDATORS_COUNT;i++))

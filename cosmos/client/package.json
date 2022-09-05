@@ -1,0 +1,20 @@
+{
+  "name": "cosmos-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.8.2"
+  },
+  "dependencies": {
+    "@cosmjs/proto-signing": "^0.28.13",
+    "@cosmjs/stargate": "^0.28.13",
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.2"
+  }
+}

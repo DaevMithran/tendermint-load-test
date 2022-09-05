@@ -79,19 +79,19 @@ function start() {
     h1=$((h1+3))
     ./build/tm-load-test \
     coordinator \
-    --expect-workers 2 \
+    --expect-workers 1 \
     --bind localhost:26670 \
     -c 1 -T $TIME -r $RATE -s $SIZE \
     --broadcast-tx-method $TXN_TYPE \
-    --endpoints ws://0.0.0.0:26657/websocket,ws://0.0.0.0:26757/websocket,ws://0.0.0.0:26857/websocket,ws://0.0.0.0:26957/websocket,ws://0.0.0.0:27057/websocket,ws://0.0.0.0:27157/websocket,ws://0.0.0.0:27257/websocket,ws://0.0.0.0:27357/websocket,ws://0.0.0.0:27457/websocket,ws://0.0.0.0:27557/websocket,ws://0.0.0.0:27657/websocket \
+    --endpoints ws://0.0.0.0:26657/websocket,ws://0.0.0.0:26757/websocket,ws://0.0.0.0:26857/websocket,ws://0.0.0.0:26957/websocket\
     --endpoint-select-method any \
     --stats-output ./tests/$TEST/"$RATE:$TIME:$SIZE".csv &
 
     echo "Starting worker 1"
     start_worker &
 
-    echo "Starting worker 2"
-    start_worker
+    # echo "Starting worker 2"
+    # start_worker
 
     wait
 

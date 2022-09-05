@@ -14,11 +14,11 @@ services:
       - 1317:1317      # Cosmos REST API port
       - 9090:9090      # gRPC port
       - 9091:9091      # gRPC-Gateway port
-    command: checkersd start --x-crisis-skip-assert-invariants
+    command: simd start --x-crisis-skip-assert-invariants
     volumes:
-      - ./network-config/validator-0/config:/root/.checkers/config
-      - ./network-config/validator-0/data:/root/.checkers/data
-      - ./network-config/seeds.txt:/root/.checkers/config/seeds.txt 
+      - ./network-config/validator-0/config:/root/.simapp/config
+      - ./network-config/validator-0/data:/root/.simapp/data
+      - ./network-config/seeds.txt:/root/.simapp/config/seeds.txt 
   validator-1:
     networks:
     - localnet
@@ -30,11 +30,11 @@ services:
       - 1417:1317      # Cosmos REST API port
       - 9190:9090      # gRPC port
       - 9191:9091      # gRPC-Gateway port      
-    command: checkersd start --x-crisis-skip-assert-invariants
+    command: simd start --x-crisis-skip-assert-invariants
     volumes:
-      - ./network-config/validator-1/config:/root/.checkers/config
-      - ./network-config/validator-1/data:/root/.checkers/data 
-      - ./network-config/seeds.txt:/root/.checkers/config/seeds.txt     
+      - ./network-config/validator-1/config:/root/.simapp/config
+      - ./network-config/validator-1/data:/root/.simapp/data 
+      - ./network-config/seeds.txt:/root/.simapp/config/seeds.txt     
   validator-2:
     networks:
     - localnet
@@ -46,11 +46,11 @@ services:
       - 1517:1317      # Cosmos REST API port
       - 9290:9090      # gRPC port
       - 9291:9091      # gRPC-Gateway port      
-    command: checkersd start --x-crisis-skip-assert-invariants
+    command: simd start --x-crisis-skip-assert-invariants
     volumes:
-      - ./network-config/validator-2/config:/root/.checkers/config
-      - ./network-config/validator-2/data:/root/.checkers/data
-      - ./network-config/seeds.txt:/root/.checkers/config/seeds.txt 
+      - ./network-config/validator-2/config:/root/.simapp/config
+      - ./network-config/validator-2/data:/root/.simapp/data
+      - ./network-config/seeds.txt:/root/.simapp/config/seeds.txt 
   validator-3:
     networks:
     - localnet
@@ -62,11 +62,11 @@ services:
       - 1617:1317      # Cosmos REST API port
       - 9390:9090      # gRPC port
       - 9391:9091      # gRPC-Gateway port      
-    command: checkersd start --x-crisis-skip-assert-invariants
+    command: simd start --x-crisis-skip-assert-invariants
     volumes:
-      - ./network-config/validator-3/config:/root/.checkers/config
-      - ./network-config/validator-3/data:/root/.checkers/data
-      - ./network-config/seeds.txt:/root/.checkers/config/seeds.txt      
+      - ./network-config/validator-3/config:/root/.simapp/config
+      - ./network-config/validator-3/data:/root/.simapp/data
+      - ./network-config/seeds.txt:/root/.simapp/config/seeds.txt      
   seed-0:
     networks:
     - localnet
@@ -78,8 +78,8 @@ services:
       - 1717:1317      # Cosmos REST API port
       - 9490:9090      # gRPC port
       - 9491:9091      # gRPC-Gateway port  
-    command: checkersd start    
+    command: simd start    
     volumes:
-      - ./network-config/seed-0/config:/root/.checkers/config
-      - ./network-config/seed-0/data:/root/.checkers/data
-      - ./network-config/seeds.txt:/root/.checkers/config/seeds.txt
+      - ./network-config/seed-0/config:/root/.simapp/config
+      - ./network-config/seed-0/data:/root/.simapp/data
+      - ./network-config/seeds.txt:/root/.simapp/config/seeds.txt

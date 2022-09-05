@@ -14,7 +14,7 @@ fi
 # Params 
 CHAIN_ID="testTendermint"
 
-VALIDATORS_COUNT=16
+VALIDATORS_COUNT=4
 
 # global variables
 NETWORK_CONFIG_DIR="network-config"
@@ -29,8 +29,8 @@ function init_node () {
     echo "$NODE_NAME Initializing"
 
     tendermint init --home $NODE_HOME 2> /dev/null
-    tendermint show-node-id --home $NODE_HOME > "${NODE_HOME}/node_id.txt"
-    tendermint show-validator --home $NODE_HOME > "${NODE_HOME}/node_val_pubkey.txt"
+    tendermint show_node_id --home $NODE_HOME > "${NODE_HOME}/node_id.txt"
+    tendermint show_validator --home $NODE_HOME > "${NODE_HOME}/node_val_pubkey.txt"
 }
 
 function configure_genesis() {
@@ -49,6 +49,9 @@ function configure_genesis() {
     cp $GENESIS_TMP $GENESIS
     sed -i $SED_EXT 's|laddr = "tcp://127.0.0.1:26657"|laddr = "tcp://0.0.0.0:26657"|g' $CONFIG
     sed -i $SED_EXT 's|addr_book_strict = true|addr_book_strict = false|g' $CONFIG
+    sed -i $SED_EXT 's|flush_throttle_timeout = "100ms"|flush_throttle_timeout = "10ms"|g' $CONFIG
+    # sed -i $SED_EXT 's|recheck = true|recheck = false|g' $CONFIG
+    # sed -i $SED_EXT 's|broadcast = true|broadcast = false|g' $CONFIG
 
     for ((j=0;j<VALIDATORS_COUNT;j++))
     do
